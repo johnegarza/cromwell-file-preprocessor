@@ -1,4 +1,4 @@
-import os, yaml
+import os, yaml, sys
 
 def dict_processor(raw_dict):
     if "class" in raw_dict:
@@ -13,8 +13,15 @@ def dict_processor(raw_dict):
     else:
         return raw_dict
 
-with open("test_yaml.yaml") as yaml_file:
+input_yaml = sys.argv[1]
+yaml_dir = os.path.split(input_yaml)[0]
+curr_dir = os.getcwd()
+
+with open(input_yaml) as yaml_file:
     data = yaml.load(yaml_file)
+
+if yaml_dir != "":
+    os.chdir(yaml_dir) #so os.path.abspath will work properly
 
 final_output = {}
 for key in data:
