@@ -1,4 +1,4 @@
-import os, yaml, sys, shutil
+import os, yaml, sys, shutil, subprocess
 
 #TODO handle secondaryFiles
 #TODO handle JSON?
@@ -16,11 +16,20 @@ def dict_processor(raw_dict, dest_dir):
     else:
         return raw_dict
 
+#TODO handle edge cases- what to do with naming collisions, links
 def copier(abs_src_path, dest_path, is_file):
     if is_file:
-        shutil.copy(abs_src_path, dest_path)
+        #can't handle naming collisions, removing
+        #shutil.copy(abs_src_path, dest_path)
+        subprocess.call(["cp", "-n", abs_src_path, dest_path])
+        #TODO
+        #note- can check return code and handle collisions accordingly; -n is a temporary
+        #fix for early development
     else:
-        shutil.copytree(abs_src_path, dest_path)
+        #destination directory cannot exist when this is run, making this unuseable
+        #shutil.copytree(abs_src_path, dest_path)
+        subprocess.call(["cp", "-r", abs_src_path, dest_path])
+        
     #return new path to file/directory so it can be updated in the processed output
     #TODO should this be an absolute path?
     return dest_path + os.path.split(abs_src_path)[1]
@@ -35,6 +44,8 @@ with open(input_yaml) as yaml_file:
 
 if yaml_dir != "":
     os.chdir(yaml_dir) #so os.path.abspath will work properly
+
+subprocess.call(["mkdir", "-p", dest_dir])
 
 final_output = {}
 for key in data:
