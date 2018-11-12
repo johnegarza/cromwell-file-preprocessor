@@ -54,6 +54,8 @@ def secondary_handler(file_string, parameter_path, dest_dir):
             basename = basename[:ext_remove]
             basename = ".".join(basename)
             ext = ext.replace("^", "")
+        if param_dir[-1] != "/":
+            param_dir += "/" #TODO look into this- might always be the case, if so can add this in earlier without the if statement
         secondary_file_name = param_dir + basename + ext
         if os.path.exists(secondary_file_name):
             copier(secondary_file_name, dest_dir, True) #TODO technically it's possible to specify directories as secondaryFiles, need to implement handling
@@ -100,7 +102,9 @@ for key in data:
     else:
         final_output[key] = data[key]
 
+#check for secondaryFiles from top level cwl
 with open(workflow_cwl) as cwl_file:
+    print("checking secondaries")
     lines = cwl_file.readlines()
     found_inputs = False
     for line in lines:
@@ -112,12 +116,13 @@ with open(workflow_cwl) as cwl_file:
             if line_arr[1] == "":
                 parameter_name = line_arr[0]
             elif line_arr[0].lower() == "secondaryfiles":
-                parameter_path = parameter_to_path[parameter_name] #TODO error possible here if there's a mistake in the yaml and parameters don't have a one to one mapping with those in the workflow inputs section
-                handle_secondaries(line_arr[1], parameter_path, dest_dir)
+                parameter_paths = parameter_to_path[parameter_name] #TODO error possible here if there's a mistake in the yaml and parameters don't have a one to one mapping with those in the workflow inputs section
+                for parameter_path in parameter_paths:
+                    secondary_handler(line_arr[1], parameter_path, dest_dir)
                 
-        if line.strip() == "inputs":
+        if line.strip() == "inputs:":
             found_inputs = True
-
+            print "found inputs section"
 with open(processed_yaml, "w+") as output_file:
     yaml.dump(final_output, output_file)
 
