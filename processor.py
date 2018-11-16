@@ -1,9 +1,6 @@
 import os, yaml, sys, shutil, subprocess
 from collections import defaultdict
 
-#TODO handle secondaryFiles
-#TODO handle JSON?
-
 def dict_processor(raw_dict, dest_dir, parameter_name, parameter_map):
     if "class" in raw_dict:
         if raw_dict["class"] == "File":
@@ -20,14 +17,18 @@ def dict_processor(raw_dict, dest_dir, parameter_name, parameter_map):
 #TODO handle edge cases- what to do with naming collisions, links
 def copier(abs_src_path, dest_path, is_file):
     if is_file:
-        #subprocess.call(["cp", "-n", abs_src_path, dest_path])
+        subprocess.call(["cp", "-n", abs_src_path, dest_path])
         #TODO
         #note- can check return code and handle collisions accordingly; -n is a temporary
         #fix for early development
+
+        #saving the following block for now, in case we decide to try links again in the future
+        '''
         src_name = os.path.split(abs_src_path)[1]
         link_name = dest_path + src_name
         print link_name
         subprocess.call(["ln", "-s", abs_src_path, link_name])
+        '''
     else:
         subprocess.call(["cp", "-r", abs_src_path, dest_path])
         
@@ -103,6 +104,7 @@ for key in data:
         final_output[key] = data[key]
 
 #check for secondaryFiles from top level cwl
+#TODO cwl can be parsed as yaml- this will be more robust
 with open(workflow_cwl) as cwl_file:
     print("checking secondaries")
     lines = cwl_file.readlines()
