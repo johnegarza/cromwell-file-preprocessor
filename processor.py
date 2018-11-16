@@ -106,13 +106,11 @@ for key in data:
 #check for secondaryFiles from top level cwl
 #TODO cwl can be parsed as yaml- this will be more robust
 with open(workflow_cwl) as cwl_file:
-    print("checking secondaries")
     lines = cwl_file.readlines()
     found_inputs = False
     for line in lines:
         if found_inputs:
             if line[0] != " ": #no indents, so next major section
-                print line #TODO for initial debugging, remove
                 break
             line_arr = line.strip().replace(" ", "").replace('"','').split(":")
             if line_arr[1] == "":
@@ -124,7 +122,6 @@ with open(workflow_cwl) as cwl_file:
                 
         if line.strip() == "inputs:":
             found_inputs = True
-            print "found inputs section"
 with open(processed_yaml, "w+") as output_file:
     yaml.dump(final_output, output_file)
 
